@@ -30,7 +30,9 @@ export default function LessonDetailPage() {
 
   const [lesson, setLesson] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"exercises" | "reading" | "situations" | "grammar" | "vocabulary">("exercises");
+  // A lesson always opens on the word review, then the learner moves to grammar
+  // and finally to the exercises, matching the study order requested.
+  const [activeTab, setActiveTab] = useState<"exercises" | "reading" | "situations" | "grammar" | "vocabulary">("vocabulary");
   
   // Exercise filter
   const [questionFilter, setQuestionFilter] = useState<string>("all");
@@ -195,8 +197,33 @@ export default function LessonDetailPage() {
         </div>
       </div>
 
-      {/* Primary Lesson Sections Tabs */}
+      {/* Primary Lesson Sections Tabs, ordered the way a lesson is meant to be studied:
+          review the words first, then the grammar, then the exercises. */}
       <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <button
+          onClick={() => setActiveTab("vocabulary")}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "vocabulary"
+              ? "bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-xs"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          }`}
+        >
+          <Languages className="w-4 h-4 text-rose-600" />
+          <span>Lektionswortschatz ({lesson.vocabulary?.length || 0} Wörter)</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("grammar")}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "grammar"
+              ? "bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-xs"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-amber-600" />
+          <span>Grammatik ({lesson.grammarTopics?.length || 0} Themen)</span>
+        </button>
+
         <button
           onClick={() => setActiveTab("exercises")}
           className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -231,30 +258,6 @@ export default function LessonDetailPage() {
         >
           <MessageSquare className="w-4 h-4 text-emerald-600" />
           <span>Alltagssituationen ({situationsExercises.length} Abschnitte)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("grammar")}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "grammar"
-              ? "bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-xs"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-          }`}
-        >
-          <Sparkles className="w-4 h-4 text-amber-600" />
-          <span>Grammatik ({lesson.grammarTopics?.length || 0} Themen)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("vocabulary")}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "vocabulary"
-              ? "bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-xs"
-              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-          }`}
-        >
-          <Languages className="w-4 h-4 text-rose-600" />
-          <span>Lektionswortschatz ({lesson.vocabulary?.length || 0} Wörter)</span>
         </button>
       </div>
 
