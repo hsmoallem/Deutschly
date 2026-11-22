@@ -44,7 +44,7 @@ Deutschly/
 1. **Exact Textbook Content Preservation:**
    * 152 high-resolution 300 DPI pages extracted from the official curriculum (*عبد الرؤوف - منهج اللغة الألمانية للثانوية العامة*).
    * 1,642 interactive practice questions across 113 exercise units with 6,543 answer choices.
-   * 1,847 vocabulary words (892 lesson words + 955 general dictionary entries; 1,205 unique lemmas) with German articles (`der`, `die`, `das`), plural forms, and pure OCR Arabic translations. All generic fillers and sentence fragments eliminated.
+   * 1,840 vocabulary words (889 lesson words + 951 general dictionary entries; 1,213 unique lemmas) with German articles (`der`, `die`, `das`), plural forms, and pure OCR Arabic translations. All generic fillers and sentence fragments eliminated.
 
 2. **Interactive Exercise Engine:**
    * **Hide & Reveal Answer Choices:** Challenge yourself by hiding options until ready.
@@ -84,11 +84,11 @@ See [documentation/CONTENT_INVENTORY.md](./documentation/CONTENT_INVENTORY.md) f
 |---|---|
 | **Total PDF Pages** | **152** |
 | **Curriculum Lessons** | **5** (Lektion 10 to 14) + Lexicon + Practice |
-| **Interactive Exercises** | **165** |
-| **Practice Questions** | **1,578** |
-| **Answer Choices** | **6,214** |
-| **Cataloged Vocabulary Items** | **2,306** |
-| **Automated Tests** | **29 / 29 Passed** |
+| **Interactive Exercises** | **113** |
+| **Practice Questions** | **1,642** |
+| **Answer Choices** | **6,543** |
+| **Cataloged Vocabulary Items** | **1,840** |
+| **Automated Tests** | **34 / 34 Passed** |
 
 ---
 

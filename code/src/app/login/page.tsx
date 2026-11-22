@@ -101,8 +101,7 @@ export default function LoginPage() {
           <p className="font-semibold text-slate-700 dark:text-slate-300">
             Standard-Zugangsdaten zum Testen:
           </p>
-          <p>Schüler: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">student</code> / <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">password123</code></p>
-          <p>Admin: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">admin</code> / <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">password123</code></p>
+          <p>Anmeldung: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">student</code> / <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">password123</code></p>
         </div>
       </div>
     </div>

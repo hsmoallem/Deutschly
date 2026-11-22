@@ -25,12 +25,12 @@ Every record in Deutschly is extracted from the 152 physical pages rendered at 3
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Lektion 10:** Gesundheit, Krankheit & Befinden | 1 – 24 | 24 | 18 | 260 | 1,038 | 247 |
 | **Lektion 11:** In der Stadt unterwegs | 25 – 53 | 29 | 23 | 332 | 1,323 | 181 |
-| **Lektion 12:** Der Kunde ist König | 54 – 78 | 25 | 21 | 305 | 1,218 | 193 |
+| **Lektion 12:** Der Kunde ist König | 54 – 78 | 25 | 21 | 305 | 1,218 | 190 |
 | **Lektion 13:** Kleidung / Im Kaufhaus | 79 – 112 | 34 | 28 | 422 | 1,682 | 153 |
 | **Lektion 14:** Die Feste & Einladungen | 113 – 138 | 26 | 23 | 323 | 1,282 | 118 |
-| **General Dictionary** (قاموس الكلمات) | 139 – 147 | 9 | 0 | 0 | 0 | 955 |
+| **General Dictionary** (قاموس الكلمات) | 139 – 147 | 9 | 0 | 0 | 0 | 951 |
 | **Student Practice & Notes** (ملاحظات الطالب) | 148 – 152 | 5 | 0 | 0 | 0 | 0 |
-| **TOTALS (Verified & Synchronized)** | **1 – 152** | **152** | **113** | **1,642** | **6,543** | **1,847** |
+| **TOTALS (Verified & Synchronized)** | **1 – 152** | **152** | **113** | **1,642** | **6,543** | **1,840** |
 
 ---
 
@@ -50,4 +50,4 @@ SELECT
 - `total_exercises`: **113**
 - `total_questions`: **1,642**
 - `total_choices`: **6,543**
-- `total_vocabulary`: **1,847** (892 lesson words + 955 general dictionary entries; 1,205 unique lemmas)
+- `total_vocabulary`: **1,840** (889 lesson words + 951 general dictionary entries; 1,213 unique lemmas)

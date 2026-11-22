@@ -10,7 +10,7 @@
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:seed": "node scripts/seed.js",
-    "test": "node scripts/run_tests.js"
+    "test": "node scripts/run_real_tests.js"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

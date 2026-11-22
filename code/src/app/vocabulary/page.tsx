@@ -170,7 +170,7 @@ export default function MasterVocabularyPage() {
             </h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            2,306 مفردة مع أداة التعريف (der, die, das)، صيغة الجمع، المعنى العربي الدقيق، ونطق ألماني بصوت نقي.
+            1.840 مفردة موثقة مع أداة التعريف (der, die, das)، صيغة الجمع، المعنى العربي الدقيق، ونطق ألماني بصوت نقي.
           </p>
         </div>
 

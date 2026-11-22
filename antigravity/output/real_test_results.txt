@@ -47,7 +47,15 @@
   ✓ PASS: Page 145 'Wem? (Dativ)' exists in vocabulary
   ✓ PASS: Page 145 'Wem? (Dativ)' contains proper Arabic translation 'من'
 
+--- TEST GROUP 6: Master Lexicon & Clean Arabic ---
+  ✓ PASS: Master Lexicon API returns 200 OK
+  ✓ PASS: Master Lexicon contains all 1,840 verified vocabulary items (actual: 1840)
+  ✓ PASS: Master Lexicon pagination has 31 pages at 60/page (actual: 31)
+  ✓ PASS: Zero empty Arabic meanings in entire vocabulary database (actual: 0)
+  ✓ PASS: Zero non-words or standalone grammar tags in vocabulary (actual: 0)
+  ✓ PASS: Zero OCR digit noise '0000' in vocabulary meanings (actual: 0)
+
 =================================================
-📊 TEST SUITE SUMMARY: 34 PASSED, 0 FAILED (TOTAL: 34)
+📊 TEST SUITE SUMMARY: 40 PASSED, 0 FAILED (TOTAL: 40)
 =================================================
 

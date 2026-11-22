@@ -149,6 +149,32 @@ async function main() {
     console.log(`Successfully seeded ${rawQuestions.length} questions and choices!`);
   }
 
+  // 5. Load Verified Vocabulary
+  let vocabPath = path.join(__dirname, '../antigravity/output/verified_vocabulary.json');
+  if (!fs.existsSync(vocabPath)) {
+    vocabPath = path.join(__dirname, '../../antigravity/output/verified_vocabulary.json');
+  }
+  if (fs.existsSync(vocabPath)) {
+    const rawVocab = JSON.parse(fs.readFileSync(vocabPath, 'utf8'));
+    console.log(`Loading ${rawVocab.length} verified vocabulary items...`);
+    for (const v of rawVocab) {
+      const lessonId = lessonMap[v.lesson] || null;
+      await prisma.vocabularyItem.create({
+        data: {
+          lessonId: lessonId,
+          germanWord: v.word,
+          baseForm: v.word,
+          article: v.article || null,
+          pluralForm: v.plural || null,
+          meaningAr: v.arabic || null,
+          exampleSentence: v.example || null,
+          pdfPageRef: v.page || 1
+        }
+      });
+    }
+    console.log(`Successfully seeded ${rawVocab.length} vocabulary items!`);
+  }
+
   console.log("Database seeding completed successfully!");
 }
 

@@ -40,7 +40,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-brand-700 via-brand-600 to-indigo-700 p-8 text-white shadow-xl shadow-brand-700/10">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-700 via-brand-600 to-indigo-700 p-8 text-white shadow-xl shadow-brand-700/10">
         <div className="relative z-10 max-w-2xl">
           <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md mb-4 text-white">
             <Zap className="w-3.5 h-3.5 text-amber-300" />
@@ -61,12 +61,6 @@ export default function DashboardPage() {
             >
               <span>Lektionen starten</span>
               <ArrowRight className="w-4 h-4" />
-            </a>
-            <a
-              href="/admin"
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl font-semibold bg-brand-800/60 hover:bg-brand-800 text-white border border-white/20 transition-all text-sm"
-            >
-              <span>Verification / Admin</span>
             </a>
           </div>
         </div>

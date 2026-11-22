@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken');
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "deutschly_dev_local_secret_key_9876543210";
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = process.env.BASE_URL || "http://localhost:3001";
 
 let testsRun = 0;
 let testsPassed = 0;
@@ -184,6 +184,28 @@ async function runTestSuite() {
   if (wemVocab) {
     assert(wemVocab.meaningAr && wemVocab.meaningAr.includes('من'), "Page 145 'Wem? (Dativ)' contains proper Arabic translation 'من'");
   }
+
+  // 6. Master Lexicon & Clean Arabic Verification
+  console.log("\n--- TEST GROUP 6: Master Lexicon & Clean Arabic ---");
+  const dictRes = await request('GET', '/api/dictionary/search?lesson=all&limit=60');
+  assert(dictRes.status === 200, "Master Lexicon API returns 200 OK");
+  assert(dictRes.data && dictRes.data.total === 1840, `Master Lexicon contains all 1,840 verified vocabulary items (actual: ${dictRes.data?.total})`);
+  assert(dictRes.data && dictRes.data.totalPages === 31, `Master Lexicon pagination has 31 pages at 60/page (actual: ${dictRes.data?.totalPages})`);
+
+  const emptyArCount = await prisma.vocabularyItem.count({
+    where: { OR: [{ meaningAr: null }, { meaningAr: '' }] }
+  });
+  assert(emptyArCount === 0, `Zero empty Arabic meanings in entire vocabulary database (actual: ${emptyArCount})`);
+
+  const badTagsCount = await prisma.vocabularyItem.count({
+    where: { germanWord: { in: ['(Akk)', '(Dativ)', 'Das', 'Die', 'g', 'p'] } }
+  });
+  assert(badTagsCount === 0, `Zero non-words or standalone grammar tags in vocabulary (actual: ${badTagsCount})`);
+
+  const noisyOcrCount = await prisma.vocabularyItem.count({
+    where: { meaningAr: { contains: '0000' } }
+  });
+  assert(noisyOcrCount === 0, `Zero OCR digit noise '0000' in vocabulary meanings (actual: ${noisyOcrCount})`);
 
   console.log("\n=================================================");
   console.log(`📊 TEST SUITE SUMMARY: ${testsPassed} PASSED, ${testsFailed} FAILED (TOTAL: ${testsRun})`);

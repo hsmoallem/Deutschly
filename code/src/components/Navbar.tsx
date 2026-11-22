@@ -37,7 +37,6 @@ export default function Navbar({ playbackSpeed, onSpeedChange, user }: NavbarPro
     { href: "/vocabulary", label: "Vocabulary Review", icon: Languages },
     { href: "/dictionary", label: "Master Lexicon", icon: BookA },
     { href: "/notes", label: "My Tips & Notes", icon: StickyNote },
-    { href: "/admin", label: "Verification / Admin", icon: ShieldCheck },
   ];
 
   const speedOptions = [0.75, 1.0, 1.25, 1.5];
