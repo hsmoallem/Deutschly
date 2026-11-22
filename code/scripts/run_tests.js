@@ -162,17 +162,27 @@ async function runAllTests() {
 
   // TEST SUITE 6: Documentation and Artifact Files Verification
   console.log("\n--- 6. MANDATORY DOCUMENTATION FILES CHECK ---");
-  const requiredFiles = [
-    "README.md",
-    "CONTENT_INVENTORY.md",
+  const requiredCodeFiles = [
     ".env.example",
     "prisma/schema.prisma",
     "tsconfig.json",
     "package.json"
   ];
 
-  for (const f of requiredFiles) {
-    assert(fs.existsSync(path.join(__dirname, '..', f)), `Mandatory repository file exists: ${f}`);
+  for (const f of requiredCodeFiles) {
+    assert(fs.existsSync(path.join(__dirname, '..', f)), `Mandatory code file exists: ${f}`);
+  }
+
+  const requiredDocFiles = [
+    "README.md",
+    "documentation/PRD.md",
+    "documentation/TECHNICAL_DOCUMENTATION.md",
+    "documentation/CONTENT_INVENTORY.md"
+  ];
+
+  for (const f of requiredDocFiles) {
+    const exists = fs.existsSync(path.join(__dirname, '../..', f)) || fs.existsSync(path.join(__dirname, '..', f));
+    assert(exists, `Mandatory repository file exists: ${f}`);
   }
 
   console.log("\n==================================================");

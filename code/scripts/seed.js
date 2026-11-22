@@ -89,7 +89,10 @@ async function main() {
   console.log("Created 7 lesson/reference sections.");
 
   // 4. Load Extracted Questions
-  const questionsPath = path.join(__dirname, '../antigravity/output/extracted_questions.json');
+  let questionsPath = path.join(__dirname, '../antigravity/output/extracted_questions.json');
+  if (!fs.existsSync(questionsPath)) {
+    questionsPath = path.join(__dirname, '../../antigravity/output/extracted_questions.json');
+  }
   if (fs.existsSync(questionsPath)) {
     const rawQuestions = JSON.parse(fs.readFileSync(questionsPath, 'utf8'));
     console.log(`Loading ${rawQuestions.length} extracted questions...`);

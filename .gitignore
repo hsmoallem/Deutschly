@@ -1,17 +1,22 @@
 # dependencies
-/node_modules
-/.pnp
+node_modules/
+**/node_modules/
+.pnp
 .pnp.js
 
 # testing
-/coverage
+coverage/
+**/coverage/
 
 # next.js
-/.next/
-/out/
+.next/
+**/.next/
+out/
+**/out/
 
 # production
-/build
+build/
+**/build/
 
 # misc
 .DS_Store
@@ -25,6 +30,8 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+**/.env
+**/.env*.local
 
 # vercel
 .vercel
@@ -32,12 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+**/next-env.d.ts
 
 # sqlite databases
 *.db
 *.db-journal
-prisma/*.db
-prisma/*.db-journal
+**/*.db
+**/*.db-journal
 
 # audio cache large binaries
 public/audio_cache/*.mp3
+**/public/audio_cache/*.mp3
