@@ -50,7 +50,20 @@ export async function GET(
         })
       : [];
 
+    const reviewItems = user
+      ? await prisma.reviewItem.findMany({
+          where: {
+            userId: user.id,
+            isManuallyRemoved: false,
+            question: { exercise: { lessonId: lesson.id } },
+          },
+        })
+      : [];
+
     const stateMap = new Map(userStates.map((s) => [s.questionId, s]));
+    const difficultSet = new Set(
+      reviewItems.filter((r) => r.listType === "DIFFICULT").map((r) => r.questionId)
+    );
 
     // Format lesson with questions, user states, and attempts
     const exercises = lesson.exercises.map((ex) => ({
@@ -72,6 +85,7 @@ export async function GET(
           isFlaggedForReview: q.isFlaggedForReview,
           reviewReason: q.reviewReason,
           pdfPageRef: q.pdfPageRef,
+          isDifficult: difficultSet.has(q.id),
           choices: q.choices.map((c) => ({
             id: c.id,
             choiceLabel: c.choiceLabel,

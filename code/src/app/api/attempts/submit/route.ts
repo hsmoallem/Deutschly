@@ -56,26 +56,17 @@ export async function POST(req: NextRequest) {
       submittedChoice.trim().toLowerCase() ===
       question.correctChoiceLabel.trim().toLowerCase();
 
-    // 1. Fetch prior attempts and existing state to evaluate progression
-    const [priorAttempts, existingState] = await Promise.all([
-      prisma.attempt.findMany({
-        where: { userId: user.id, questionId },
-        orderBy: { attemptTimestamp: "asc" },
-      }),
-      prisma.userQuestionState.findUnique({
-        where: {
-          userId_questionId: {
-            userId: user.id,
-            questionId,
-          },
+    // 1. Fetch prior existing state
+    const existingState = await prisma.userQuestionState.findUnique({
+      where: {
+        userId_questionId: {
+          userId: user.id,
+          questionId,
         },
-      }),
-    ]);
+      },
+    });
 
-    const hadPriorWrong = priorAttempts.some((a) => !a.isCorrect);
-    const usedHintEver = usedHint || priorAttempts.some((a) => a.usedHint);
-
-    // 2. Record Attempt History
+    // 2. Record Attempt History (usedHint recorded for statistics only)
     const attempt = await prisma.attempt.create({
       data: {
         userId: user.id,
@@ -88,25 +79,17 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 3. Learning Rules Classification:
-    // - Revealing choices alone is NOT assistance
-    // - Difficult = wrong first, then hint, then right
-    // - Wrong = wrong after hint or still wrong
-    // - Normal first correct after reveal = SOLVED_INDEPENDENTLY
-    let newClassification = "PENDING";
+    // 3. Learning Rules (Final Section 6):
+    // - Revealing choices alone is a normal step, NOT assistance, does not change status.
+    // - Hint is optional, on request only, recorded in attempt history for statistics only. Does not change status by itself.
+    // - Difficult is MANUAL ONLY. The app NEVER marks a question Difficult by itself.
+    // - Right: marked correct (SOLVED_INDEPENDENTLY).
+    // - Wrong: marked WRONG, and the question goes to the Wrong Answers list.
+    const newClassification = isCorrect ? "SOLVED_INDEPENDENTLY" : "WRONG";
 
-    if (!isCorrect) {
-      newClassification = "WRONG";
-    } else {
-      // Answer is correct!
-      if (hadPriorWrong && usedHintEver) {
-        newClassification = "DIFFICULT";
-      } else {
-        newClassification = "SOLVED_INDEPENDENTLY";
-      }
-    }
-
-    // 3. Update UserQuestionState
+    // 4. Update UserQuestionState
+    // If the student solved a question before and retries wrong, status becomes WRONG,
+    // but isCompletedSuccessfully stays TRUE (lesson stays completed).
     const updatedState = await prisma.userQuestionState.upsert({
       where: {
         userId_questionId: {
@@ -116,8 +99,7 @@ export async function POST(req: NextRequest) {
       },
       update: {
         classification: newClassification,
-        isCompletedSuccessfully:
-          existingState?.isCompletedSuccessfully || isCorrect,
+        isCompletedSuccessfully: existingState?.isCompletedSuccessfully || isCorrect,
         attemptsCount: (existingState?.attemptsCount || 0) + 1,
         lastAttemptAt: new Date(),
       },
@@ -131,7 +113,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 4. Update Review Lists (Difficult & Wrong)
+    // 5. Update Review Lists (Wrong Answers)
     if (newClassification === "WRONG") {
       // Add or reactivate in WRONG review list
       await prisma.reviewItem.upsert({
@@ -145,6 +127,7 @@ export async function POST(req: NextRequest) {
         update: {
           isManuallyRemoved: false,
           addedAt: new Date(),
+          removedAt: null,
         },
         create: {
           userId: user.id,
@@ -153,29 +136,8 @@ export async function POST(req: NextRequest) {
           isManuallyRemoved: false,
         },
       });
-    } else if (newClassification === "DIFFICULT") {
-      // Add or reactivate in DIFFICULT review list
-      await prisma.reviewItem.upsert({
-        where: {
-          userId_questionId_listType: {
-            userId: user.id,
-            questionId,
-            listType: "DIFFICULT",
-          },
-        },
-        update: {
-          isManuallyRemoved: false,
-          addedAt: new Date(),
-        },
-        create: {
-          userId: user.id,
-          questionId,
-          listType: "DIFFICULT",
-          isManuallyRemoved: false,
-        },
-      });
     } else if (newClassification === "SOLVED_INDEPENDENTLY") {
-      // If solved independently, remove active item from WRONG review list
+      // Solved correctly: remove from WRONG review list
       await prisma.reviewItem.updateMany({
         where: {
           userId: user.id,
@@ -189,8 +151,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 5. Check Lesson Completion
-    // A lesson is completed only when all exercises have all questions answered correctly at least once
+    // 6. Check Lesson Completion
+    // A lesson is completed once all questions have been answered correctly at least once
     const lessonId = question.exercise.lessonId;
     const allLessonQuestions = await prisma.question.findMany({
       where: {

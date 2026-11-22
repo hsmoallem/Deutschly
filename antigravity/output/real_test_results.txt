@@ -35,10 +35,17 @@
 --- TEST GROUP 4: Learning Rules State Machine ---
   ✓ PASS: Found verified AI_CHECKED question for attempt testing
   ✓ PASS: Submission on verified question returns 200 OK
-  ✓ PASS: Revealing choices alone does NOT degrade attempt to DIFFICULT -> Classified as SOLVED_INDEPENDENTLY
+  ✓ PASS: Revealing choices alone does NOT change status -> Classified as SOLVED_INDEPENDENTLY
   ✓ PASS: Hint request returns HTTP 200 OK
   ✓ PASS: Hint response is labeled 'isAiHint: true'
   ✓ PASS: Pedagogical hint does NOT give away the answer choice
+  ✓ PASS: AI Hint is for statistics only -> Correct answer with hint is classified as SOLVED_INDEPENDENTLY
+  ✓ PASS: Wrong answer is marked WRONG and routes to Wrong Answers list
+  ✓ PASS: Question retried wrong retains isCompletedSuccessfully: true (lesson stays completed)
+  ✓ PASS: Student can manually mark any question as Difficult at any time
+  ✓ PASS: Question is present in DIFFICULT review list after manual marking
+  ✓ PASS: Manual removal from Difficult list returns 200 OK
+  ✓ PASS: Manual removal from Difficult list preserves full attempt history
   ✓ PASS: Submission on REQUIRES_REVIEW question is rejected with 400 and requiresReview flag
 
 --- TEST GROUP 5: Vocabulary Integrity & Pure OCR ---
@@ -56,6 +63,6 @@
   ✓ PASS: Zero OCR digit noise '0000' in vocabulary meanings (actual: 0)
 
 =================================================
-📊 TEST SUITE SUMMARY: 40 PASSED, 0 FAILED (TOTAL: 40)
+📊 TEST SUITE SUMMARY: 47 PASSED, 0 FAILED (TOTAL: 47)
 =================================================
 

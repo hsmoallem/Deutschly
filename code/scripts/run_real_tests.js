@@ -34,6 +34,10 @@ async function request(method, path, body = null, token = null) {
     if (token) {
       headers['Cookie'] = `deutschly_token=${token}`;
     }
+    const payload = body ? JSON.stringify(body) : null;
+    if (payload) {
+      headers['Content-Length'] = Buffer.byteLength(payload);
+    }
     const req = http.request(url, { method, headers }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
@@ -44,7 +48,7 @@ async function request(method, path, body = null, token = null) {
       });
     });
     req.on('error', reject);
-    if (body) req.write(JSON.stringify(body));
+    if (payload) req.write(payload);
     req.end();
   });
 }
@@ -149,13 +153,63 @@ async function runTestSuite() {
 
     assert(revealAttempt.status === 200, "Submission on verified question returns 200 OK");
     assert(revealAttempt.data && revealAttempt.data.classification === 'SOLVED_INDEPENDENTLY', 
-      "Revealing choices alone does NOT degrade attempt to DIFFICULT -> Classified as SOLVED_INDEPENDENTLY");
+      "Revealing choices alone does NOT change status -> Classified as SOLVED_INDEPENDENTLY");
 
-    // Test 4.2: Hint Generation on Demand
+    // Test 4.2: Hint Generation on Demand (For statistics only, does not change status by itself)
     const hintRes = await request('POST', '/api/hints/generate', { questionId: testQ.id }, studentToken);
     assert(hintRes.status === 200, "Hint request returns HTTP 200 OK");
     assert(hintRes.data && hintRes.data.isAiHint === true, "Hint response is labeled 'isAiHint: true'");
     assert(hintRes.data && !hintRes.data.hint.includes(testQ.correctChoiceLabel), "Pedagogical hint does NOT give away the answer choice");
+
+    // Test 4.3: Correct answer after using hint is still marked correct (Hint does NOT change status by itself)
+    const hintSubmit = await request('POST', '/api/attempts/submit', {
+      questionId: testQ.id,
+      submittedChoice: testQ.correctChoiceLabel,
+      revealedChoices: true,
+      usedHint: true
+    }, studentToken);
+    assert(hintSubmit.data && hintSubmit.data.classification === 'SOLVED_INDEPENDENTLY',
+      "AI Hint is for statistics only -> Correct answer with hint is classified as SOLVED_INDEPENDENTLY");
+
+    // Test 4.4: Wrong answer retry updates status to WRONG, but preserves lesson completion
+    const wrongChoice = ['a', 'b', 'c', 'd'].find(c => c !== testQ.correctChoiceLabel.toLowerCase());
+    const retryWrong = await request('POST', '/api/attempts/submit', {
+      questionId: testQ.id,
+      submittedChoice: wrongChoice,
+      revealedChoices: true,
+      usedHint: false
+    }, studentToken);
+    assert(retryWrong.data && retryWrong.data.classification === 'WRONG',
+      "Wrong answer is marked WRONG and routes to Wrong Answers list");
+
+    const stateAfterWrong = await prisma.userQuestionState.findUnique({
+      where: { userId_questionId: { userId: student.id, questionId: testQ.id } }
+    });
+    assert(stateAfterWrong && stateAfterWrong.isCompletedSuccessfully === true,
+      "Question retried wrong retains isCompletedSuccessfully: true (lesson stays completed)");
+
+    // Test 4.5: Difficult is MANUAL ONLY
+    const manualDiffRes = await request('POST', '/api/review-list', {
+      questionId: testQ.id,
+      listType: 'DIFFICULT'
+    }, studentToken);
+    assert(manualDiffRes.status === 200, "Student can manually mark any question as Difficult at any time");
+
+    const diffCount = await prisma.reviewItem.count({
+      where: { userId: student.id, questionId: testQ.id, listType: 'DIFFICULT', isManuallyRemoved: false }
+    });
+    assert(diffCount === 1, "Question is present in DIFFICULT review list after manual marking");
+
+    // Test 4.6: Removing question from review list by hand never deletes attempts
+    const attemptsCountBefore = await prisma.attempt.count({ where: { userId: student.id, questionId: testQ.id } });
+    const removeRes = await request('DELETE', '/api/review-list', {
+      questionId: testQ.id,
+      listType: 'DIFFICULT'
+    }, studentToken);
+    assert(removeRes.status === 200, "Manual removal from Difficult list returns 200 OK");
+
+    const attemptsCountAfter = await prisma.attempt.count({ where: { userId: student.id, questionId: testQ.id } });
+    assert(attemptsCountBefore === attemptsCountAfter, "Manual removal from Difficult list preserves full attempt history");
   }
 
   // Test 4.3: Flagged for review questions are excluded from student submission

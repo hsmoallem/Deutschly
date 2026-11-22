@@ -73,7 +73,49 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// Manual removal endpoint
+// Manual add/mark endpoint (for "Mark as Difficult")
+export async function POST(req: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { questionId, listType = "DIFFICULT" } = await req.json();
+
+    if (!questionId || !["DIFFICULT", "WRONG"].includes(listType)) {
+      return NextResponse.json({ error: "Invalid questionId or listType" }, { status: 400 });
+    }
+
+    const item = await prisma.reviewItem.upsert({
+      where: {
+        userId_questionId_listType: {
+          userId: user.id,
+          questionId,
+          listType,
+        },
+      },
+      update: {
+        isManuallyRemoved: false,
+        addedAt: new Date(),
+        removedAt: null,
+      },
+      create: {
+        userId: user.id,
+        questionId,
+        listType,
+        isManuallyRemoved: false,
+      },
+    });
+
+    return NextResponse.json({ success: true, item, message: `Marked as ${listType}` });
+  } catch (error: any) {
+    console.error("Review item add error:", error);
+    return NextResponse.json({ error: "Failed to mark item" }, { status: 500 });
+  }
+}
+
+// Manual removal endpoint (removes from list by hand, never deletes attempts and never un-completes lesson)
 export async function DELETE(req: NextRequest) {
   try {
     const user = await getCurrentUser();
@@ -81,7 +123,18 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { questionId, listType } = await req.json();
+    let questionId: string | null = null;
+    let listType: string | null = null;
+
+    try {
+      const body = await req.json();
+      questionId = body.questionId;
+      listType = body.listType;
+    } catch (e) {
+      const { searchParams } = new URL(req.url);
+      questionId = searchParams.get("questionId");
+      listType = searchParams.get("listType") || searchParams.get("type");
+    }
 
     if (!questionId || !listType) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
