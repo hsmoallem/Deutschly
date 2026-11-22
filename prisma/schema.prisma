@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  id          String    @id @default(uuid())
+  title       String
+  author      String?
+  language    String    @default("de")
+  sourcePdf   String?
+  totalPages  Int       @default(152)
+  createdAt   DateTime  @default(now())
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id              String      @id @default(uuid())
+  bookId          String
+  book            Book        @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  sequenceOrder   Int
+  lessonNumber    String      // "Lektion 10"
+  title           String      // "Gesundheit, Krankheit & Befinden"
+  pdfStartPage    Int
+  pdfEndPage      Int
+  grammarContent  String?     // Stored JSON or markdown
+  createdAt       DateTime    @default(now())
+  exercises       Exercise[]
+  vocabulary      VocabularyItem[]
+}
+
+model Exercise {
+  id              String      @id @default(uuid())
+  lessonId        String
+  lesson          Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  exerciseType    String      // "grammar_drill", "situations", "reading", "exam"
+  title           String
+  instructions    String?
+  passageText     String?
+  pdfPageRef      Int
+  sequenceOrder   Int
+  questions       Question[]
+}
+
+model Question {
+  id                  String            @id @default(uuid())
+  exerciseId          String
+  exercise            Exercise          @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  sequenceOrder       Int
+  questionNumber      Int
+  questionText        String
+  originalHint        String?
+  correctChoiceLabel  String            // 'a', 'b', 'c', 'd'
+  answerStatus        String            @default("AI_CHECKED") // "AI_CHECKED", "REQUIRES_REVIEW", "USER_PROVIDED"
+  isFlaggedForReview  Boolean           @default(false)
+  reviewReason        String?
+  pdfPageRef          Int
+  audioFilePath       String?
+  choices             Choice[]
+  attempts            Attempt[]
+  userStates          UserQuestionState[]
+  reviewItems         ReviewItem[]
+  auditLogs           AnswerAuditLog[]
+  aiHints             AiHint[]
+}
+
+model Choice {
+  id              String      @id @default(uuid())
+  questionId      String
+  question        Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  choiceLabel     String      // 'a', 'b', 'c', 'd'
+  choiceText      String
+  audioFilePath   String?
+}
+
+model User {
+  id              String              @id @default(uuid())
+  username        String              @unique
+  email           String              @unique
+  passwordHash    String
+  role            String              @default("student") // "student", "admin"
+  createdAt       DateTime            @default(now())
+  settings        UserSettings?
+  attempts        Attempt[]
+  questionStates  UserQuestionState[]
+  reviewItems     ReviewItem[]
+  vocabulary      UserVocabulary[]
+  notes           UserNote[]
+}
+
+model UserSettings {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredVoice  String    @default("de-DE")
+  playbackSpeed   Float     @default(1.0)
+  theme           String    @default("light")
+  lastBookId      String?
+  lastLessonId    String?
+  updatedAt       DateTime  @default(now())
+}
+
+model Attempt {
+  id                        String    @id @default(uuid())
+  userId                    String
+  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId                String
+  question                  Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  submittedChoice           String    // 'a', 'b', 'c', 'd'
+  isCorrect                 Boolean
+  usedHint                  Boolean   @default(false)
+  revealedChoices           Boolean   @default(false)
+  listenedRevealedChoices   Boolean   @default(false)
+  attemptTimestamp          DateTime  @default(now())
+}
+
+model UserQuestionState {
+  id                        String    @id @default(uuid())
+  userId                    String
+  user                      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId                String
+  question                  Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  classification            String    // "SOLVED_INDEPENDENTLY", "DIFFICULT", "WRONG", "PENDING"
+  isCompletedSuccessfully   Boolean   @default(false)
+  attemptsCount             Int       @default(0)
+  lastAttemptAt             DateTime?
+
+  @@unique([userId, questionId])
+}
+
+model ReviewItem {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId        String
+  question          Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  listType          String    // "DIFFICULT", "WRONG"
+  isManuallyRemoved Boolean   @default(false)
+  addedAt           DateTime  @default(now())
+  removedAt         DateTime?
+
+  @@unique([userId, questionId, listType])
+}
+
+model VocabularyItem {
+  id              String    @id @default(uuid())
+  lessonId        String?
+  lesson          Lesson?   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  germanWord      String
+  baseForm        String?
+  article         String?   // "der", "die", "das"
+  pluralForm      String?
+  meaningAr       String?
+  meaningEn       String?
+  wordType        String?
+  exampleSentence String?
+  pdfPageRef      Int
+}
+
+model UserVocabulary {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  selectedWord    String
+  baseWord        String
+  article         String?
+  pluralForm      String?
+  meaningEn       String
+  meaningAr       String?
+  wordType        String?
+  sentenceContext String?
+  pdfPageRef      Int?
+  status          String    @default("learning") // "learning", "difficult", "learned"
+  createdAt       DateTime  @default(now())
+}
+
+model UserNote {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  content         String
+  category        String?   @default("Grammatik")
+  isFavorite      Boolean   @default(false)
+  isAiGenerated   Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now())
+}
+
+model AudioCache {
+  id              String    @id @default(uuid())
+  cacheKey        String    @unique
+  textContent     String
+  voiceIdentifier String
+  filePath        String
+  fileSizeBytes   Int
+  createdAt       DateTime  @default(now())
+}
+
+model AnswerAuditLog {
+  id              String    @id @default(uuid())
+  questionId      String
+  question        Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  previousAnswer  String
+  newAnswer       String
+  changedBy       String    // "AI" or username
+  reason          String?
+  changedAt       DateTime  @default(now())
+}
+
+model AiHint {
+  id              String    @id @default(uuid())
+  questionId      String
+  question        Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  hintText        String
+  createdAt       DateTime  @default(now())
+
+  @@unique([questionId])
+}

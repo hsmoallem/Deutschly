@@ -1,0 +1,107 @@
+[
+  {
+    "index": 1,
+    "id": "q_7_1_1",
+    "lesson": "Lektion 10",
+    "page": 7,
+    "num": 1,
+    "question_text": "Der Arzt hat gesagt , du sollst die Tabletten 3 mal täglich nehmen. Das hilft ........ Fieber.",
+    "choices": {
+      "a": "für",
+      "b": "durch",
+      "c": "gegen",
+      "d": "von"
+    },
+    "correct_answer": "c",
+    "correct_answer_text": "gegen",
+    "answer_status": "AI_CHECKED",
+    "is_flagged": false,
+    "review_reason": null,
+    "image_file": "antigravity/output/sample_questions/sample_q1_p7.png",
+    "page_image": "public/extracted/pages/page_7.png"
+  },
+  {
+    "index": 2,
+    "id": "q_7_2_2",
+    "lesson": "Lektion 10",
+    "page": 7,
+    "num": 2,
+    "question_text": "Ali hat Augenschmerzen. Er kann die Zeitung nicht ...................",
+    "choices": {
+      "a": "lesen",
+      "b": "hören",
+      "c": "essen",
+      "d": "trinken"
+    },
+    "correct_answer": "a",
+    "correct_answer_text": "lesen",
+    "answer_status": "AI_CHECKED",
+    "is_flagged": false,
+    "review_reason": null,
+    "image_file": "antigravity/output/sample_questions/sample_q2_p7.png",
+    "page_image": "public/extracted/pages/page_7.png"
+  },
+  {
+    "index": 3,
+    "id": "q_7_3_3",
+    "lesson": "Lektion 10",
+    "page": 7,
+    "num": 3,
+    "question_text": "Susanne ist krank . Sie möchte einen Termin beim ..............vereinbaren.",
+    "choices": {
+      "a": "Arzt",
+      "b": "Frisör",
+      "c": "Lehrer",
+      "d": "Herr"
+    },
+    "correct_answer": "a",
+    "correct_answer_text": "Arzt",
+    "answer_status": "AI_CHECKED",
+    "is_flagged": false,
+    "review_reason": null,
+    "image_file": "antigravity/output/sample_questions/sample_q3_p7.png",
+    "page_image": "public/extracted/pages/page_7.png"
+  },
+  {
+    "index": 4,
+    "id": "q_7_4_4",
+    "lesson": "Lektion 10",
+    "page": 7,
+    "num": 4,
+    "question_text": "Karl hat .........................Samstag einen Frisörtermin.",
+    "choices": {
+      "a": "am",
+      "b": "auf",
+      "c": "gegen",
+      "d": "von"
+    },
+    "correct_answer": "a",
+    "correct_answer_text": "am",
+    "answer_status": "AI_CHECKED",
+    "is_flagged": false,
+    "review_reason": null,
+    "image_file": "antigravity/output/sample_questions/sample_q4_p7.png",
+    "page_image": "public/extracted/pages/page_7.png"
+  },
+  {
+    "index": 5,
+    "id": "q_8_5_5",
+    "lesson": "Lektion 10",
+    "page": 8,
+    "num": 5,
+    "question_text": "Frau Müller :Entschuldigung ,wo kann ich Medikamente kaufen? -Laura  :................................................",
+    "choices": {
+      "a": "In der Bäckerei",
+      "b": "In der Praxis.",
+      "c": "Im Buchladen.",
+      "d": "In der Apotheke."
+    },
+    "correct_answer": "d",
+    "correct_answer_text": "In der Apotheke.",
+    "answer_status": "AI_CHECKED",
+    "is_flagged": false,
+    "review_reason": null,
+    "image_file": "antigravity/output/sample_questions/sample_q5_p8.png",
+    "page_image": "public/extracted/pages/page_8.png"
+  }
+]
