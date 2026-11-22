@@ -29,7 +29,7 @@ reading passages and the grammar content did not.
 | Answer choices | 6,214 | 6,183 | 6,212 |
 | Vocabulary words | 1,840 | 1,809 | 1,837 |
 | Vocabulary example sentences | 889 | 885 | 886 |
-| Reading passages | 12 | 8 partly, 5 invented | 12, 205 of 221 sentences verbatim |
+| Reading passages | 12 | 8 partly, 5 invented | 12, 214 of 221 sentences verbatim |
 | Grammar topics | 13 | 0, entirely authored | 13, 49 of 49 examples from the book |
 
 The small remainders are explained in section 9. Two choices on page 51 read correctly but
@@ -211,7 +211,7 @@ with a Greek beta never matched `Fuß`.
 1. **The book's Arabic grammar explanation is not reproduced.** Only the German side of
    each grammar page is in the app. Rendering the grammar pages as images and showing them
    in the Grammatik tab would fix this faithfully.
-2. **Six sentences across five passages are not verbatim**, where the extractor joined a
+2. **Seven sentences across five passages are not verbatim**, where the extractor joined a
    passage tail to the next instruction. They are visible as a short trailing fragment and
    can be trimmed by re-running the passage map with a tighter tail rule.
 3. **Three vocabulary rows are artefacts, not words**: `Entschuldigungsschreiben`,
