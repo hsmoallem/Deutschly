@@ -235,16 +235,17 @@ Do not commit `app.log`, `start.sh` or `prisma/dev.db.bak-*`.
 
 ## 13. Known issues
 
-1. **Five reading passages are not from the book.** Written German texts are stored for
-   PDF pages 49, 74, 76, 111 and 137. See `CONTENT_AUDIT.md`.
-2. **The grammar content is authored, not extracted.** All 14 topics carry written
-   Arabic explanations and 35 German examples, of which only 3 appear anywhere in the
-   book.
-3. **31 answer choices are malformed**, holding whole blocks of page text or empty
-   strings.
-4. **31 vocabulary rows do not resolve** to their claimed page, mostly OCR artefacts such
-   as `g Anschluss` or `Oh`.
-5. **Around 50 Arabic meanings are truncated** to one or two letters, for example `بة`
-   for Empfehlung, and `شقا` for Wohnung where the correct word is `شقة`.
-6. **The seeded accounts still use a default password** published in the public
-   repository. `admin` is an administrator on a publicly reachable site.
+The content was audited against the source PDF and the defects repaired on 22 November
+2026. See `CONTENT_AUDIT.md` for the evidence and the before and after figures.
+
+1. **The book's Arabic grammar explanation is not reproduced.** Each grammar topic carries
+   the book's German heading, rules and examples verbatim, plus an Arabic line pointing to
+   the page. The book's Arabic cannot be extracted because its font maps glyphs to the wrong
+   letters. Showing the grammar pages as page images is the faithful way to add it.
+2. **Three vocabulary rows are extraction artefacts, not words**, such as `pp Hausaufgabe`.
+   They should be dropped rather than corrected.
+3. **A few passage tails carry a short fragment** where the extractor joined a passage to the
+   next instruction. Cosmetic, and trimmed by re-running the passage map.
+4. **The seeded accounts still use a default password** published in the public repository.
+   `admin` is an administrator on a publicly reachable site. This is the most urgent
+   outstanding item.

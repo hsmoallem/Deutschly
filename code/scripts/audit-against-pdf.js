@@ -21,8 +21,12 @@ const ARABIC = /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff\ufb50-\ufdff\ufe70-\ufe
 function norm(s) {
   if (!s) return "";
   let x = String(s).replace(ARABIC, " ");
+  // fold the PDF's broken glyphs to real letters first, then expand umlauts, then NFKD
+  x = x.replace(/[\u0171\u0215\u04f1]/g, "ü").replace(/[\u04e7]/g, "ö")
+       .replace(/[\u0201\u04d3]/g, "ä").replace(/[\u03b2]/g, "ß");
   x = x.replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss");
   x = x.replace(/Ä/g, "ae").replace(/Ö/g, "oe").replace(/Ü/g, "ue");
+  x = x.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
   x = x.toLowerCase();
   x = x.replace(/[^a-z0-9]+/g, "");
   return x;
@@ -30,7 +34,7 @@ function norm(s) {
 
 /** does this normalised needle appear on the page, or within one page either side? */
 function onPage(needle, page, tolerance = 1) {
-  if (!needle || needle.length < 3) return { found: false, exact: false, where: null };
+  if (!needle || needle.length < 1) return { found: false, exact: false, where: null };
   for (let d = 0; d <= tolerance; d++) {
     for (const p of d === 0 ? [page] : [page - d, page + d]) {
       const txt = PAGES[String(p)];

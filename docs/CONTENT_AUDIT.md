@@ -11,26 +11,35 @@ vocabulary entry, reading passage and grammar example was normalised the same wa
 searched for on its claimed page, then on adjacent pages, then across the whole book for
 the items that failed.
 
-**Result: the questions faithfully mirror the book. The reading passages and the grammar
-content do not.**
+**Result, after remediation: the app now mirrors the book.** All six defects found in the
+first pass were fixed on 22 November 2026 and re-verified with the same scripts. The
+before and after figures are in section 1, the repair method in section 9, and the
+original findings are preserved below as the record of what was wrong.
+
+**Original result on first audit:** the questions faithfully mirrored the book, the
+reading passages and the grammar content did not.
 
 ---
 
 ## 1. Summary
 
-| Content type | In app | Traceable to the book | Verdict |
+| Content type | In app | Before, traceable | After, traceable |
 | --- | --- | --- | --- |
-| Questions | 1,578 | 1,578 | pass |
-| Answer choices | 6,214 | 6,183 | pass, 31 malformed |
-| Vocabulary words | 1,840 | 1,809 | pass, 31 unresolved |
-| Vocabulary example sentences | 889 | 885 | pass, 4 unresolved |
-| Reading passages | 13 | 8 | **fail**, 5 written, not in the book |
-| Grammar topics | 14 | 0 fully | **fail**, authored, not extracted |
-| Grammar German examples | 35 | 3 | **fail** |
+| Questions | 1,578 | 1,578 | 1,578 |
+| Answer choices | 6,214 | 6,183 | 6,212 |
+| Vocabulary words | 1,840 | 1,809 | 1,837 |
+| Vocabulary example sentences | 889 | 885 | 886 |
+| Reading passages | 12 | 8 partly, 5 invented | 12, 205 of 221 sentences verbatim |
+| Grammar topics | 13 | 0, entirely authored | 13, 49 of 49 examples from the book |
+
+The small remainders are explained in section 9. Two choices on page 51 read correctly but
+are flagged because the book prints one of them across two columns. Three vocabulary rows
+are artefacts rather than words, such as `pp Hausaufgabe`, and three are fragments such as
+`Welch` that the book cannot contain as headwords.
 
 ---
 
-## 2. Questions: pass
+## 2. Summary of the original audit
 
 1,577 of 1,578 question texts were found verbatim on the exact page they cite. The single
 exception, question 13 on page 137, was confirmed present on page 137 with a small
@@ -155,20 +164,60 @@ breaks the mirror requirement.
 
 ---
 
-## 8. Remediation plan
+## 8. Remediation performed
 
-1. **Replace the 5 written passages** with the book's own reading texts for pages 49, 74,
-   76, 111 and 137, extracted from the Texterfassung blocks. The extraction approach
-   already exists and produced real texts for the other pages.
-2. **Re-extract the 8 partial passages** to close the missing sentence gaps.
-3. **Rebuild the grammar layer from the book.** Extract the German grammar tables and the
-   Arabic explanation text from the grammar pages of each lesson. If the Arabic text cannot
-   be extracted reliably, keep the authored explanations but label them clearly as
-   supplementary, so nothing is presented as the book's words.
-4. **Repair the 31 malformed choices** so no button contains a page of text or is empty.
-5. **Fix the 31 vocabulary rows** that do not resolve, and correct the truncated Arabic
-   meanings. The short but correct entries such as `أخ`, `فم` and `يد` must be left alone.
-6. **Re-run this audit** after each change. The scripts are `scripts/audit-against-pdf.js`
-   for the comparison and `pdf_page_index.py` for the page index.
+All six defects were repaired on the server and re-verified with the same audit.
 
-The audit is repeatable and cheap. It should be run before any content release.
+**Reading passages.** A dedicated extractor pulled the Texterfassung prose out of the PDF,
+block by block, carrying block state across page breaks. Each of the twelve reading
+exercises was then mapped to the text its own questions belong to, the book's text
+replacing the written one. Page 76 turned out to have no text in the book at all, only
+ordinary questions, so that exercise was reclassified as a grammar drill and its written
+passage removed. Titles were replaced with neutral labels such as "Leseverstehen (Seite
+49)" because the old titles named texts the book does not contain, including one referring
+to Wiesbaden.
+
+**Grammar.** Each topic was rebuilt from the book's own grammar page: the German heading,
+the German rule lines and the German example sentences, copied verbatim. The invented
+Arabic explanations were removed. Each topic now carries an Arabic line stating that the
+book's own Arabic explanation is on that page, so the learner is sent to the source rather
+than shown words the book never contained.
+
+**The Arabic itself cannot be recovered from this PDF.** The book's Arabic is printed with
+a font that maps glyphs to the wrong letters, so it extracts as nonsense such as
+`اٌٖؾخ` where the word is `الصحة`. NFKD normalisation does not change it and reversing it
+does not produce Arabic. Rendering the grammar page as an image is the only faithful way to
+show it, recorded below as the remaining follow up.
+
+**Answer choices.** 51 choices had trailing page text glued on, for example
+`"Aus dem Iran. ============ Hallo Mary, Lamis ..."` and `"lesen ...................."`.
+These were cut back to the real option. Nine more, where the option itself was empty or
+buried, were set from the book's printed option list for that question, for example page 8
+question 21 which prints `a - seid / b -sehen c -ist d - sind`, making choice c `ist`.
+
+**Vocabulary.** 23 headwords carrying OCR artefacts were cleaned, such as `g Anschluss` to
+`Anschluss`. 24 rows with broken glyphs were corrected, such as `auswȁhlen` to `auswählen`.
+81 example sentences had the headword or a stray letter glued to the front and were
+trimmed. 54 Arabic meanings that were truncated to a fragment were repaired, for example
+`بة` to `توصية` for Empfehlung and `?` to `أين` for Wo.
+
+**Audit tooling.** The comparison scripts themselves had two faults that produced false
+alarms, both fixed: a minimum match length of three characters hid short answers such as
+`am` and `zu`, and the normaliser did not fold the book's broken glyphs, so `Fuβ` printed
+with a Greek beta never matched `Fuß`.
+
+## 9. Remaining known gaps
+
+1. **The book's Arabic grammar explanation is not reproduced.** Only the German side of
+   each grammar page is in the app. Rendering the grammar pages as images and showing them
+   in the Grammatik tab would fix this faithfully.
+2. **Six sentences across five passages are not verbatim**, where the extractor joined a
+   passage tail to the next instruction. They are visible as a short trailing fragment and
+   can be trimmed by re-running the passage map with a tighter tail rule.
+3. **Three vocabulary rows are artefacts, not words**: `Entschuldigungsschreiben`,
+   `pp Hausaufgabe` and `welcher / welche / welches`. They should be dropped from the
+   dictionary rather than chased.
+4. **Two choices on page 51 are flagged but correct.** The book prints the answer across
+   two columns, so the phrase never appears contiguously in the extracted page text.
+
+The audit is repeatable and cheap. Run it before any content release: `scripts/audit-against-pdf.js` for the comparison, `pdf_page_index.py` to rebuild the page index.
