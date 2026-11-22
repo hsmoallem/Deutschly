@@ -1,0 +1,13 @@
+{
+  "name": "deutschly-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Deutschly - Interactive German Learning Platform",
+  "scripts": {
+    "dev": "npm --prefix code run dev",
+    "build": "npm --prefix code run build",
+    "start": "npm --prefix code run start",
+    "test": "npm --prefix code run test",
+    "lint": "npm --prefix code run lint"
+  }
+}

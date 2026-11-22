@@ -42,9 +42,9 @@ Deutschly/
 ## 🌟 Key Features
 
 1. **Exact Textbook Content Preservation:**
-   * 152 pages extracted from the official curriculum (*عبد الرؤوف - منهج اللغة الألمانية للثانوية العامة*).
-   * 1,578 interactive practice questions with 6,214 answer choices.
-   * 2,306 vocabulary words with German articles (`der`, `die`, `das`), plural forms, and Arabic definitions.
+   * 152 high-resolution 300 DPI pages extracted from the official curriculum (*عبد الرؤوف - منهج اللغة الألمانية للثانوية العامة*).
+   * 1,642 interactive practice questions across 113 exercise units with 6,543 answer choices.
+   * 1,847 vocabulary words (892 lesson words + 955 general dictionary entries; 1,205 unique lemmas) with German articles (`der`, `die`, `das`), plural forms, and pure OCR Arabic translations. All generic fillers and sentence fragments eliminated.
 
 2. **Interactive Exercise Engine:**
    * **Hide & Reveal Answer Choices:** Challenge yourself by hiding options until ready.

@@ -5,7 +5,12 @@ import { getCurrentUser } from "@/lib/auth";
 export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
-    // Allow viewing questions (admin or authorized user)
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (user.role.toUpperCase() !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+    }
     const { searchParams } = new URL(req.url);
     const filter = searchParams.get("filter"); // "all", "flagged", "user_provided"
     const lessonNum = searchParams.get("lesson");
@@ -87,6 +92,9 @@ export async function PATCH(req: NextRequest) {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (user.role.toUpperCase() !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
     const { questionId, newCorrectChoiceLabel, reason } = await req.json();

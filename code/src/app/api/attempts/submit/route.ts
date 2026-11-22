@@ -40,11 +40,42 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Question not found" }, { status: 404 });
     }
 
+    // Exclude questions that are flagged for review from student learning submission
+    if (question.isFlaggedForReview || question.answerStatus === "REQUIRES_REVIEW") {
+      return NextResponse.json(
+        {
+          requiresReview: true,
+          error: "This question requires instructor review and is currently excluded from student grading.",
+          pdfPageRef: question.pdfPageRef,
+        },
+        { status: 400 }
+      );
+    }
+
     const isCorrect =
       submittedChoice.trim().toLowerCase() ===
       question.correctChoiceLabel.trim().toLowerCase();
 
-    // 1. Record Attempt History
+    // 1. Fetch prior attempts and existing state to evaluate progression
+    const [priorAttempts, existingState] = await Promise.all([
+      prisma.attempt.findMany({
+        where: { userId: user.id, questionId },
+        orderBy: { attemptTimestamp: "asc" },
+      }),
+      prisma.userQuestionState.findUnique({
+        where: {
+          userId_questionId: {
+            userId: user.id,
+            questionId,
+          },
+        },
+      }),
+    ]);
+
+    const hadPriorWrong = priorAttempts.some((a) => !a.isCorrect);
+    const usedHintEver = usedHint || priorAttempts.some((a) => a.usedHint);
+
+    // 2. Record Attempt History
     const attempt = await prisma.attempt.create({
       data: {
         userId: user.id,
@@ -57,28 +88,18 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 2. Fetch existing state
-    const existingState = await prisma.userQuestionState.findUnique({
-      where: {
-        userId_questionId: {
-          userId: user.id,
-          questionId,
-        },
-      },
-    });
-
-    // Assistance was used on THIS attempt if user requested hint, revealed choices, or played revealed choices
-    const usedAssistanceOnThisAttempt =
-      usedHint || revealedChoices || listenedRevealedChoices;
-
+    // 3. Learning Rules Classification:
+    // - Revealing choices alone is NOT assistance
+    // - Difficult = wrong first, then hint, then right
+    // - Wrong = wrong after hint or still wrong
+    // - Normal first correct after reveal = SOLVED_INDEPENDENTLY
     let newClassification = "PENDING";
 
     if (!isCorrect) {
-      // Wrong answer always classifies as WRONG regardless of hint/reveal
       newClassification = "WRONG";
     } else {
       // Answer is correct!
-      if (usedAssistanceOnThisAttempt) {
+      if (hadPriorWrong && usedHintEver) {
         newClassification = "DIFFICULT";
       } else {
         newClassification = "SOLVED_INDEPENDENTLY";
