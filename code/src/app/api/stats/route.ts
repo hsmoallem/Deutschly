@@ -6,7 +6,28 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      const [totalBooks, totalLessons, totalQuestions] = await Promise.all([
+        prisma.book.count(),
+        prisma.lesson.count({ where: { sequenceOrder: { lte: 5 } } }),
+        prisma.question.count(),
+      ]);
+      return NextResponse.json({
+        success: true,
+        stats: {
+          totalBooks,
+          totalLessons,
+          totalQuestions,
+          completedQuestions: 0,
+          solvedIndependently: 0,
+          difficultCount: 0,
+          wrongCount: 0,
+          activeDifficultReviews: 0,
+          activeWrongReviews: 0,
+          savedVocabCount: 0,
+          learnedVocabCount: 0,
+          overallProgressPercent: 0,
+        },
+      });
     }
 
     const [

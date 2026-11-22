@@ -4,16 +4,61 @@ import { getCurrentUser } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await getCurrentUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type"); // "saved" or "master"
+    const lessonId = searchParams.get("lessonId");
+    const article = searchParams.get("article");
+    const q = searchParams.get("q");
 
-    const vocab = await prisma.userVocabulary.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
+    // 1. If requesting user saved bookmarks
+    if (type === "saved") {
+      const user = await getCurrentUser();
+      if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+      const vocab = await prisma.userVocabulary.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return NextResponse.json({ success: true, vocabulary: vocab });
+    }
+
+    // 2. Otherwise return Master Textbook Vocabulary Items
+    const whereClause: any = {};
+    if (lessonId && lessonId !== "all") {
+      whereClause.lessonId = lessonId;
+    }
+    if (article && article !== "all") {
+      whereClause.article = article.toLowerCase();
+    }
+    if (q) {
+      whereClause.OR = [
+        { germanWord: { contains: q } },
+        { baseForm: { contains: q } },
+        { meaningAr: { contains: q } },
+      ];
+    }
+
+    const items = await prisma.vocabularyItem.findMany({
+      where: whereClause,
+      include: {
+        lesson: {
+          select: {
+            id: true,
+            lessonNumber: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: [
+        { pdfPageRef: "asc" },
+        { germanWord: "asc" },
+      ],
     });
 
-    return NextResponse.json({ success: true, vocabulary: vocab });
+    return NextResponse.json({ success: true, vocabulary: items });
   } catch (error: any) {
+    console.error("Vocabulary fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch vocabulary" }, { status: 500 });
   }
 }

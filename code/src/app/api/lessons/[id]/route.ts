@@ -10,8 +10,15 @@ export async function GET(
     const user = await getCurrentUser();
     const lessonId = params.id;
 
-    const lesson = await prisma.lesson.findUnique({
-      where: { id: lessonId },
+    const lesson = await prisma.lesson.findFirst({
+      where: {
+        OR: [
+          { id: lessonId },
+          { lessonNumber: lessonId },
+          { lessonNumber: `Lektion ${lessonId}` },
+          { sequenceOrder: parseInt(lessonId) || -1 },
+        ],
+      },
       include: {
         exercises: {
           orderBy: { sequenceOrder: "asc" },
@@ -38,7 +45,7 @@ export async function GET(
       ? await prisma.userQuestionState.findMany({
           where: {
             userId: user.id,
-            question: { exercise: { lessonId } },
+            question: { exercise: { lessonId: lesson.id } },
           },
         })
       : [];
@@ -80,6 +87,20 @@ export async function GET(
       }),
     }));
 
+    const vocabItems = await prisma.vocabularyItem.findMany({
+      where: { lessonId: lesson.id },
+      orderBy: { pdfPageRef: "asc" },
+    });
+
+    let parsedGrammar = null;
+    if (lesson.grammarContent) {
+      try {
+        parsedGrammar = JSON.parse(lesson.grammarContent);
+      } catch (e) {
+        parsedGrammar = null;
+      }
+    }
+
     return NextResponse.json({
       success: true,
       lesson: {
@@ -88,6 +109,8 @@ export async function GET(
         title: lesson.title,
         pdfStartPage: lesson.pdfStartPage,
         pdfEndPage: lesson.pdfEndPage,
+        grammarTopics: parsedGrammar || [],
+        vocabulary: vocabItems,
         exercises,
       },
     });
